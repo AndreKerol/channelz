@@ -20,7 +20,7 @@ func (c *Channel[T]) OrDone(ctx context.Context) chan T {
 			if !ok {
 				return
 			}
-			out <- val
+			c.SendSafe(ctx, val)
 		}
 	}()
 	return out
