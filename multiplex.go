@@ -26,6 +26,9 @@ func (m *Multiplexer[T]) Multiplex(ctx context.Context, input ...chan T) chan T 
 	if len(input) == 0 {
 		return nil
 	}
+	if m.opt == nil {
+		m.opt = &MultiplexerOptions{}
+	}
 
 	out := make(chan T, m.opt.Capacity)
 

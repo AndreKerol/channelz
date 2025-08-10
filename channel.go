@@ -13,14 +13,16 @@ func (c *Channel[T]) OrDone(ctx context.Context) chan T {
 	out := make(chan T)
 	go func() {
 		defer close(out)
-		select {
-		case <-ctx.Done():
-			return
-		case val, ok := <-c.Ch:
-			if !ok {
+		for {
+			select {
+			case <-ctx.Done():
 				return
+			case val, ok := <-c.Ch:
+				if !ok {
+					return
+				}
+				sendSafe(ctx, out, val)
 			}
-			c.SendSafe(ctx, val)
 		}
 	}()
 	return out
@@ -29,6 +31,15 @@ func (c *Channel[T]) OrDone(ctx context.Context) chan T {
 func (c *Channel[T]) SendSafe(ctx context.Context, val T) bool {
 	select {
 	case c.Ch <- val:
+		return true
+	case <-ctx.Done():
+		return false
+	}
+}
+
+func sendSafe[T any](ctx context.Context, ch chan T, val T) bool {
+	select {
+	case ch <- val:
 		return true
 	case <-ctx.Done():
 		return false
