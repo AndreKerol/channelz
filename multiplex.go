@@ -13,16 +13,6 @@ type MultiplexerOptions struct {
 	Capacity int
 }
 
-func init() {
-	mul := NewMultiplexer[int](nil)
-
-	ch := mul.Multiplex(context.Background(), make(chan int, 1), make(chan int, 1))
-	for val := range ch {
-		// Process the value
-		_ = val // Replace with actual processing logic
-	}
-}
-
 func NewMultiplexer[T any](opt ...*MultiplexerOptions) *Multiplexer[T] {
 	if len(opt) == 0 {
 		opt = append(opt, &MultiplexerOptions{})
